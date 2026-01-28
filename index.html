@@ -4,102 +4,46 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   
-  <!-- Naslov i osnovni meta -->
   <title>Taxi Fuad Tuzla – Brzi poziv taksija</title>
   <meta name="description" content="Brzi taksi prevoz u Tuzli – pozovite nas 24/7. Instaliraj kao app na mobitelu."/>
   
   <!-- PWA manifest -->
   <link rel="manifest" href="./manifest.json" />
   
-  <!-- Ikone (za Android, iOS i splash) -->
+  <!-- Ikone -->
   <link rel="icon" type="image/png" href="./icon-192.png" sizes="192x192" />
   <link rel="apple-touch-icon" href="./icon-192.png" sizes="192x192" />
-  <link rel="apple-touch-icon" href="./icon-180.png" sizes="180x180" />
+  <link rel="apple-touch-icon" sizes="180x180" href="./icon-180.png" />
   
-  <!-- PWA full-screen i status bar -->
+  <!-- PWA full-screen i sakrivanje URL-a -->
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="theme-color" content="#000000" />
   
-  <!-- Loading spinner i stilovi -->
   <style>
-    body, html {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      overflow: hidden;
-      background: #000;
-      font-family: sans-serif;
-      color: white;
-    }
-    iframe {
-      border: none;
-      width: 100%;
-      height: 100%;
-    }
-    #loading {
-      position: fixed;
-      inset: 0;
-      background: #000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 9998;
-      transition: opacity 0.5s;
-    }
-    #loading.hidden {
-      opacity: 0;
-      pointer-events: none;
-    }
-    .spinner {
-      width: 60px;
-      height: 60px;
-      border: 6px solid #00ff9d;
-      border-top-color: transparent;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    #offline {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.95);
-      color: white;
-      text-align: center;
-      padding-top: 40%;
-      font-size: 1.6rem;
-      z-index: 9999;
-    }
-    #install-btn {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      padding: 12px 28px;
-      background: linear-gradient(90deg, #00ff9d, #00bfff);
-      color: black;
-      font-weight: bold;
-      border: none;
-      border-radius: 50px;
-      font-size: 1.1rem;
-      box-shadow: 0 4px 15px rgba(0,255,157,0.5);
-      cursor: pointer;
-      z-index: 9999;
-      display: none;
-      transition: all 0.3s;
-    }
-    #install-btn:hover {
-      transform: translateX(-50%) scale(1.05);
-    }
+    body, html { margin:0; padding:0; height:100%; overflow:hidden; background:#000; }
+    iframe { border:none; width:100%; height:100%; }
+    #loading { position:fixed; inset:0; background:#000; display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:9998; transition:opacity 0.5s; }
+    #loading.hidden { opacity:0; pointer-events:none; }
+    #offline { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); color:white; text-align:center; padding-top:40%; font-size:1.6rem; z-index:9999; }
+    #install-btn { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); padding:12px 28px; background:linear-gradient(90deg,#00ff9d,#00bfff); color:black; font-weight:bold; border:none; border-radius:50px; font-size:1.1rem; box-shadow:0 4px 15px rgba(0,255,157,0.5); cursor:pointer; z-index:9999; display:none; transition:all 0.3s; }
+    #install-btn:hover { transform:translateX(-50%) scale(1.05); }
   </style>
 </head>
 <body>
 
-  <!-- Loading spinner dok se iframe učitava -->
+  <!-- Loading sa Lottie taksijem (kao što si tražio ranije) -->
   <div id="loading">
-    <div class="spinner"></div>
+    <lottie-player 
+      src="https://assets9.lottiefiles.com/packages/lf20_1pxqjqps.json" 
+      background="transparent" 
+      speed="1.2" 
+      style="width: 300px; height: 300px;" 
+      loop 
+      autoplay>
+    </lottie-player>
+    <div id="loading-text">Učitavanje Taxi Fuad aplikacije...</div>
   </div>
 
   <!-- Iframe sa klijentovim sajtom -->
@@ -108,31 +52,27 @@
   <!-- Offline poruka -->
   <div id="offline">Nema interneta. Provjerite konekciju i pokušajte ponovo.</div>
 
-  <!-- Dugme za instalaciju PWA -->
+  <!-- Dugme za instalaciju -->
   <button id="install-btn">Instaliraj aplikaciju</button>
 
-  <!-- Service Worker registracija -->
+  <!-- Service Worker i instalacija -->
   <script>
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./service-worker.js')
-          .then(reg => console.log('Service Worker registrovan'))
-          .catch(err => console.log('Greška pri registraciji SW:', err));
-      });
+      navigator.serviceWorker.register('./service-worker.js')
+        .then(reg => console.log('SW OK'))
+        .catch(err => console.log('SW greška:', err));
     }
 
-    // Detekcija offline/online
     window.addEventListener('online', () => document.getElementById('offline').style.display = 'none');
     window.addEventListener('offline', () => document.getElementById('offline').style.display = 'block');
 
-    // Automatski prompt za instalaciju
     let deferredPrompt;
     const installBtn = document.getElementById('install-btn');
 
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       deferredPrompt = e;
-      installBtn.style.display = 'block'; // pokaži dugme
+      installBtn.style.display = 'block';
     });
 
     installBtn.addEventListener('click', async () => {
@@ -140,14 +80,13 @@
         deferredPrompt.prompt();
         const { outcome } = await deferredPrompt.userChoice;
         if (outcome === 'accepted') {
-          console.log('Aplikacija instalirana!');
+          console.log('Instalirano!');
         }
         deferredPrompt = null;
         installBtn.style.display = 'none';
       }
     });
 
-    // Sakrij dugme ako je već instalirano
     window.addEventListener('appinstalled', () => {
       installBtn.style.display = 'none';
     });
