@@ -4,21 +4,25 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   
+  <!-- Naslov i osnovni meta -->
   <title>Taxi Fuad Tuzla – Brzi poziv taksija</title>
   <meta name="description" content="Brzi taksi prevoz u Tuzli – pozovite nas 24/7. Instaliraj kao app na mobitelu."/>
   
+  <!-- PWA manifest -->
   <link rel="manifest" href="./manifest.json" />
-  <link rel="apple-touch-icon" href="./icon-192.png" />
-  <link rel="apple-touch-icon" sizes="180x180" href="./icon-180.png" />
   
+  <!-- Ikone (za Android, iOS i splash) -->
+  <link rel="icon" type="image/png" href="./icon-192.png" sizes="192x192" />
+  <link rel="apple-touch-icon" href="./icon-192.png" sizes="192x192" />
+  <link rel="apple-touch-icon" href="./icon-180.png" sizes="180x180" />
+  
+  <!-- PWA full-screen i status bar -->
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="theme-color" content="#000000" />
-
-  <!-- Lottie player biblioteka (besplatna i lagana) -->
-  <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
-
+  
+  <!-- Loading spinner i stilovi -->
   <style>
     body, html {
       margin: 0;
@@ -39,7 +43,6 @@
       inset: 0;
       background: #000;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
       z-index: 9998;
@@ -49,12 +52,15 @@
       opacity: 0;
       pointer-events: none;
     }
-    #loading-text {
-      margin-top: 20px;
-      font-size: 1.4rem;
-      color: #00ff9d;
-      text-shadow: 0 0 10px rgba(0,255,157,0.5);
+    .spinner {
+      width: 60px;
+      height: 60px;
+      border: 6px solid #00ff9d;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
     }
+    @keyframes spin { to { transform: rotate(360deg); } }
     #offline {
       display: none;
       position: fixed;
@@ -91,17 +97,9 @@
 </head>
 <body>
 
-  <!-- Loading sa Lottie taksijem -->
+  <!-- Loading spinner dok se iframe učitava -->
   <div id="loading">
-    <lottie-player 
-      src="https://assets9.lottiefiles.com/packages/lf20_1pxqjqps.json" 
-      background="transparent" 
-      speed="1.2" 
-      style="width: 300px; height: 300px;" 
-      loop 
-      autoplay>
-    </lottie-player>
-    <div id="loading-text">Učitavanje Taxi Fuad aplikacije...</div>
+    <div class="spinner"></div>
   </div>
 
   <!-- Iframe sa klijentovim sajtom -->
@@ -113,7 +111,7 @@
   <!-- Dugme za instalaciju PWA -->
   <button id="install-btn">Instaliraj aplikaciju</button>
 
-  <!-- Service Worker i instalacija -->
+  <!-- Service Worker registracija -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
@@ -123,16 +121,18 @@
       });
     }
 
+    // Detekcija offline/online
     window.addEventListener('online', () => document.getElementById('offline').style.display = 'none');
     window.addEventListener('offline', () => document.getElementById('offline').style.display = 'block');
 
+    // Automatski prompt za instalaciju
     let deferredPrompt;
     const installBtn = document.getElementById('install-btn');
 
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       deferredPrompt = e;
-      installBtn.style.display = 'block';
+      installBtn.style.display = 'block'; // pokaži dugme
     });
 
     installBtn.addEventListener('click', async () => {
@@ -147,6 +147,7 @@
       }
     });
 
+    // Sakrij dugme ako je već instalirano
     window.addEventListener('appinstalled', () => {
       installBtn.style.display = 'none';
     });
