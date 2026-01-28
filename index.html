@@ -4,25 +4,18 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   
-  <!-- Naslov i osnovni meta -->
   <title>Taxi Fuad Tuzla – Brzi poziv taksija</title>
   <meta name="description" content="Brzi taksi prevoz u Tuzli – pozovite nas 24/7. Instaliraj kao app na mobitelu."/>
   
-  <!-- PWA manifest -->
   <link rel="manifest" href="./manifest.json" />
+  <link rel="apple-touch-icon" href="./icon-192.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="./icon-180.png" />
   
-  <!-- Ikone (za Android, iOS i splash) -->
-  <link rel="icon" type="image/png" href="./icon-192.png" sizes="192x192" />
-  <link rel="apple-touch-icon" href="./icon-192.png" sizes="192x192" />
-  <link rel="apple-touch-icon" href="./icon-180.png" sizes="180x180" />
-  
-  <!-- PWA full-screen i status bar -->
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="theme-color" content="#000000" />
-  
-  <!-- Loading spinner i stilovi -->
+
   <style>
     body, html {
       margin: 0;
@@ -52,15 +45,85 @@
       opacity: 0;
       pointer-events: none;
     }
-    .spinner {
-      width: 60px;
-      height: 60px;
-      border: 6px solid #00ff9d;
-      border-top-color: transparent;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
+    .taxi-loader {
+      position: relative;
+      width: 200px;
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    .taxi {
+      width: 120px;
+      height: 60px;
+      background: #ffcc00;
+      border-radius: 10px 30px 30px 10px;
+      position: relative;
+      animation: drive 3s infinite linear;
+    }
+    .taxi::before {
+      content: '';
+      position: absolute;
+      top: -12px;
+      left: 30px;
+      width: 60px;
+      height: 30px;
+      background: #ffcc00;
+      border-radius: 50% 50% 0 0;
+      box-shadow: inset 0 5px 10px rgba(0,0,0,0.3);
+    }
+    .wheel-front, .wheel-back {
+      position: absolute;
+      bottom: -20px;
+      width: 40px;
+      height: 40px;
+      background: #111;
+      border-radius: 50%;
+      border: 6px solid #333;
+      box-shadow: 0 5px 10px rgba(0,0,0,0.5);
+    }
+    .wheel-front {
+      left: 20px;
+      animation: rotate 0.8s infinite linear;
+    }
+    .wheel-back {
+      right: 20px;
+      animation: rotate 0.8s infinite linear reverse;
+    }
+    .window {
+      position: absolute;
+      top: 10px;
+      left: 30px;
+      width: 60px;
+      height: 30px;
+      background: #a5d8ff;
+      border-radius: 5px;
+      box-shadow: inset 0 0 10px rgba(255,255,255,0.5);
+    }
+    .light {
+      position: absolute;
+      top: 15px;
+      left: -20px;
+      width: 30px;
+      height: 20px;
+      background: #fff;
+      border-radius: 50%;
+      box-shadow: 0 0 20px #fff, 0 0 40px #fff;
+      opacity: 0.8;
+      animation: blink 1.5s infinite;
+    }
+    @keyframes drive {
+      0% { transform: translateX(-150px); }
+      100% { transform: translateX(150px); }
+    }
+    @keyframes rotate {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 0.8; }
+      50% { opacity: 0.2; }
+    }
     #offline {
       display: none;
       position: fixed;
@@ -97,9 +160,16 @@
 </head>
 <body>
 
-  <!-- Loading spinner dok se iframe učitava -->
+  <!-- Loading animacija sa taksijem -->
   <div id="loading">
-    <div class="spinner"></div>
+    <div class="taxi-loader">
+      <div class="taxi">
+        <div class="window"></div>
+        <div class="light"></div>
+        <div class="wheel-front"></div>
+        <div class="wheel-back"></div>
+      </div>
+    </div>
   </div>
 
   <!-- Iframe sa klijentovim sajtom -->
@@ -132,7 +202,7 @@
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       deferredPrompt = e;
-      installBtn.style.display = 'block'; // pokaži dugme
+      installBtn.style.display = 'block';
     });
 
     installBtn.addEventListener('click', async () => {
@@ -147,7 +217,6 @@
       }
     });
 
-    // Sakrij dugme ako je već instalirano
     window.addEventListener('appinstalled', () => {
       installBtn.style.display = 'none';
     });
