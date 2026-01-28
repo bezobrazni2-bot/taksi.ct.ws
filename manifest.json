@@ -2,10 +2,11 @@
   "name": "Taxi Fuad Tuzla",
   "short_name": "Taxi Fuad",
   "description": "Brzi taksi prevoz u Tuzli – pozovite nas 24/7",
-  "start_url": "./",
+  "start_url": ".",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#000000",
-  "theme_color": "#ff0000",
+  "theme_color": "#ffcc00",
   "orientation": "portrait-primary",
   "icons": [
     {
