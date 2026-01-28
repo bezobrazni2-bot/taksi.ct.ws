@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="bs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>Taxi Fuad Tuzla – Brzi poziv taksija</title>
+  
+  <!-- PWA manifest – stavljen na root (promijeni putanju ako treba) -->
+  <link rel="manifest" href="/manifest.json" />
+  
+  <!-- Apple touch ikona (za iOS home screen) -->
+  <link rel="apple-touch-icon" href="/icon-192.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  
+  <!-- Osnovni stilovi za full-screen prikaz -->
+  <style>
+    body, html { margin:0; padding:0; height:100%; overflow:hidden; background:#000; }
+    iframe { border:none; width:100%; height:100%; }
+    #offline { 
+      display:none; 
+      position:fixed; 
+      inset:0; 
+      background:rgba(0,0,0,0.9); 
+      color:white; 
+      text-align:center; 
+      padding-top:40%; 
+      font-size:1.5rem; 
+      z-index:9999; 
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Iframe koji učitava klijentov sajt -->
+  <iframe src="https://taxituzlafuad.com/" id="webview"></iframe>
+
+  <!-- Offline poruka (ako nema interneta) -->
+  <div id="offline">Nema interneta. Provjerite konekciju i pokušajte ponovo.</div>
+
+  <!-- Service Worker registracija -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js')
+          .then(reg => console.log('Service Worker registrovan'))
+          .catch(err => console.log('Greška pri registraciji SW', err));
+      });
+    }
+
+    // Detekcija offline/online
+    window.addEventListener('online', () => document.getElementById('offline').style.display = 'none');
+    window.addEventListener('offline', () => document.getElementById('offline').style.display = 'block');
+  </script>
+</body>
+</html>
