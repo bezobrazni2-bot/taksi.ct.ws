@@ -1,7 +1,7 @@
-const CACHE_NAME = 'taxi-fuad-pwa-v1';
+const CACHE_NAME = 'taxi-fuad-v1';
 const urlsToCache = [
   '/',
-  '/index.html',
+  './index.html',
   'https://taxituzlafuad.com/'
 ];
 
@@ -16,6 +16,6 @@ self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request)
       .then(response => response || fetch(event.request))
-      .catch(() => caches.match('/index.html'))  // fallback na tvoju stranicu ako nema neta
+      .catch(() => caches.match('./index.html'))
   );
 });
